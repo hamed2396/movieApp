@@ -29,6 +29,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -42,16 +43,23 @@ import com.example.movieapp.R
 import com.example.movieapp.ui.theme.MovieAppTheme
 import com.example.movieapp.ui.theme.crayola
 import com.example.movieapp.utils.MyScreens
+import com.example.movieapp.utils.SessionManger
 import com.example.movieapp.utils.androidColors
 import kotlinx.coroutines.delay
 
 @Composable
-fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController) {
+fun RegisterScreen(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    userInfo: SessionManger
+) {
     var isLoading by remember { mutableStateOf(false) }
     var name by remember { mutableStateOf("") }
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var showSnackbar by remember { mutableStateOf(false) }
+    var showSnackbarForValidation by remember { mutableStateOf(false) }
+    var showSnackbarForPassword by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -80,11 +88,23 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController) 
             Spacer(modifier = Modifier.padding(top = 30.dp))
 
             Box {
-                // This will display the Snackbar
+
                 LaunchedEffect(showSnackbar) {
                     if (showSnackbar) {
                         snackbarHostState.showSnackbar("Please fill all fields!")
                         showSnackbar = false
+                    }
+                }
+                LaunchedEffect(showSnackbarForValidation) {
+                    if (showSnackbarForValidation) {
+                        snackbarHostState.showSnackbar("email not valid")
+                        showSnackbarForValidation = false
+                    }
+                }
+                LaunchedEffect(showSnackbarForPassword) {
+                    if (showSnackbarForPassword) {
+                        snackbarHostState.showSnackbar("password must be 8 characters")
+                        showSnackbarForPassword = false
                     }
                 }
 
@@ -92,18 +112,21 @@ fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController) 
                     ProgressBar()
                     LaunchedEffect(isLoading) {
                         delay(1000)
+                        userInfo.saveUserInfo(name = name, email = email)
                         navController.navigate(MyScreens.MainScreen.route) {
                             navController.popBackStack()
                         }
                     }
                 } else {
                     BtnSubmit {
-                        if (validateUserInput(name, email, password)) {
-                            isLoading = true
-                        } else {
-                            showSnackbar = true
+                        when {
+                            !validateUserInput(name, email, password) -> showSnackbar = true
+                            !isValidEmail(email) -> showSnackbarForValidation = true
+                            password.length < 8 -> showSnackbarForPassword = true
+                            else -> isLoading = true
                         }
                     }
+
                 }
             }
         }
@@ -196,12 +219,17 @@ fun Avatar() {
     )
 }
 
+fun isValidEmail(email: String): Boolean {
+    return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+}
 
 @Preview
 @Composable
 private fun RegisterScreenPrev() {
     MovieAppTheme {
         val navController = rememberNavController()
-        RegisterScreen(navController = navController)
+        val context = LocalContext.current
+        val userInfo = SessionManger(context)
+        RegisterScreen(navController = navController, userInfo = userInfo)
     }
 }
