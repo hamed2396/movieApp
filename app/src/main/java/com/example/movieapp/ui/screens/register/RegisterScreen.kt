@@ -42,7 +42,7 @@ import androidx.navigation.compose.rememberNavController
 import com.example.movieapp.R
 import com.example.movieapp.ui.theme.MovieAppTheme
 import com.example.movieapp.ui.theme.crayola
-import com.example.movieapp.utils.MyScreens
+import com.example.movieapp.utils.screens.MyScreens
 import com.example.movieapp.utils.SessionManger
 import com.example.movieapp.utils.androidColors
 import kotlinx.coroutines.delay

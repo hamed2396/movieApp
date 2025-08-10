@@ -1,12 +1,13 @@
-package com.example.movieapp.utils
+package com.example.movieapp.utils.screens
 
 import androidx.compose.runtime.Composable
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.movieapp.ui.screens.intro.IntroScreen
-import com.example.movieapp.ui.screens.main.MainScreen
+import com.example.movieapp.ui.screens.home.MainScreenBottomNav
 import com.example.movieapp.ui.screens.register.RegisterScreen
+import com.example.movieapp.utils.SessionManger
 
 @Composable
 fun ScreenNavigation(userInfo: SessionManger) {
@@ -20,7 +21,7 @@ fun ScreenNavigation(userInfo: SessionManger) {
             RegisterScreen(navController = navController, userInfo = userInfo)
         }
         composable(route = MyScreens.MainScreen.route) {
-            MainScreen(navController = navController)
+            MainScreenBottomNav()
         }
 
     }

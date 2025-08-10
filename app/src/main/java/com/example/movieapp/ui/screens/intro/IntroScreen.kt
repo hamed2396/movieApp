@@ -18,7 +18,7 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.movieapp.R
 import com.example.movieapp.ui.theme.MovieAppTheme
-import com.example.movieapp.utils.MyScreens
+import com.example.movieapp.utils.screens.MyScreens
 import com.example.movieapp.utils.SessionManger
 import kotlinx.coroutines.flow.first
 
@@ -42,7 +42,7 @@ fun ShowAnimation(modifier: Modifier = Modifier, navController: NavController,us
         val progress by animateLottieCompositionAsState(
             composition = composition,
 
-            speed = 1f
+            speed = 2f
         )
 
 

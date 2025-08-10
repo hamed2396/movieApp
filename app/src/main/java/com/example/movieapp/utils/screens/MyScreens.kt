@@ -1,4 +1,4 @@
-package com.example.movieapp.utils
+package com.example.movieapp.utils.screens
 
 sealed class MyScreens(val route: String) {
     object IntroScreen : MyScreens("introScreen")
