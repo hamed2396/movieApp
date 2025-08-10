@@ -10,13 +10,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.icons.Icons
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -47,57 +48,94 @@ import kotlinx.coroutines.delay
 @Composable
 fun RegisterScreen(modifier: Modifier = Modifier, navController: NavController) {
     var isLoading by remember { mutableStateOf(false) }
-    Column(
-        modifier = modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally
-    ) {
+    var name by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
+    var password by remember { mutableStateOf("") }
+    var showSnackbar by remember { mutableStateOf(false) }
 
-        Avatar()
-        Spacer(modifier = Modifier.padding(top = 130.dp))
+    val snackbarHostState = remember { SnackbarHostState() }
 
-        RegisterTextFields()
-        Spacer(modifier = Modifier.padding(top = 30.dp))
-        Box {
-            if (isLoading) {
-                ProgressBar()
-                LaunchedEffect(isLoading) {
-                    delay(1000)
-                    navController.navigate(MyScreens.MainScreen.route) {
-                        navController.popBackStack()
+    Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) }
+    ) { padding ->
+        Column(
+            modifier = modifier
+                .fillMaxSize()
+                .padding(padding),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+
+            Avatar()
+            Spacer(modifier = Modifier.padding(top = 130.dp))
+
+            RegisterTextFields(
+                name = name,
+                onNameChange = { name = it },
+                email = email,
+                onEmailChange = { email = it },
+                password = password,
+                onPasswordChange = { password = it }
+            )
+
+            Spacer(modifier = Modifier.padding(top = 30.dp))
+
+            Box {
+                // This will display the Snackbar
+                LaunchedEffect(showSnackbar) {
+                    if (showSnackbar) {
+                        snackbarHostState.showSnackbar("Please fill all fields!")
+                        showSnackbar = false
                     }
-
                 }
-            } else {
-                BtnSubmit {
-                    isLoading = true
+
+                if (isLoading) {
+                    ProgressBar()
+                    LaunchedEffect(isLoading) {
+                        delay(1000)
+                        navController.navigate(MyScreens.MainScreen.route) {
+                            navController.popBackStack()
+                        }
+                    }
+                } else {
+                    BtnSubmit {
+                        if (validateUserInput(name, email, password)) {
+                            isLoading = true
+                        } else {
+                            showSnackbar = true
+                        }
+                    }
                 }
             }
-
-
         }
     }
 }
 
 @Composable
-fun RegisterTextFields() {
-    var name by remember { mutableStateOf("") }
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
+fun RegisterTextFields(
+    name: String,
+    onNameChange: (String) -> Unit,
+    email: String,
+    onEmailChange: (String) -> Unit,
+    password: String,
+    onPasswordChange: (String) -> Unit
+) {
+
     var passwordVisible by remember { mutableStateOf(false) }
 
-    TextField(value = name, onValueChange = {
-        name = it
-    }, label = { Text(text = "Name") }, leadingIcon = {
-        Icon(
-            painter = painterResource(R.drawable.ic_round_person_24),
-            contentDescription = null
-        )
-    })
+    TextField(
+        value = name,
+        onValueChange = onNameChange,
+        label = { Text(text = "Name") },
+        leadingIcon = {
+            Icon(
+                painter = painterResource(R.drawable.ic_round_person_24),
+                contentDescription = null
+            )
+        })
     TextField(
         modifier = Modifier.padding(top = 16.dp),
         value = email,
-        onValueChange = {
-            email = it
-        },
+        onValueChange = onEmailChange,
         label = { Text(text = "Email") },
         leadingIcon = {
             Icon(
@@ -107,15 +145,16 @@ fun RegisterTextFields() {
         }
     )
     TextField(
+        modifier = Modifier.padding(top = 16.dp),
         value = password,
-        onValueChange = { password = it },
+        onValueChange = onPasswordChange,
         label = { Text("Password") },
         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
         trailingIcon = {
             val image = if (passwordVisible)
-             painterResource(R.drawable.baseline_visibility_24)
+                painterResource(R.drawable.baseline_visibility_24)
             else
-               painterResource(R.drawable.baseline_visibility_off_24)
+                painterResource(R.drawable.baseline_visibility_off_24)
 
             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                 Icon(painter = image, contentDescription = "Toggle Password Visibility")
@@ -123,6 +162,9 @@ fun RegisterTextFields() {
         }
     )
 }
+
+private fun validateUserInput(vararg input: String) = input.all { it.isNotEmpty() }
+
 
 @Composable
 fun ProgressBar(modifier: Modifier = Modifier) {
@@ -153,6 +195,7 @@ fun Avatar() {
             .padding(top = 32.dp)
     )
 }
+
 
 @Preview
 @Composable
