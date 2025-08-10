@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="Theme.MovieApp" parent="Theme.AppCompat.DayNight.NoActionBar">
+        <item name="android:windowBackground">@color/chineseBlack</item>
+        <item name="android:statusBarColor">@color/chineseBlack</item>
+
+    </style>
+</resources>
