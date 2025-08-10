@@ -56,7 +56,7 @@ object NetworkModule {
 
 
             chain.proceed(chain.request().newBuilder().apply {
-                addHeader(Constants.AUTHORIZATION, Constants.ACCESS_TOKEN)
+                addHeader(Constants.AUTHORIZATION_KEY, Constants.ACCESS_TOKEN)
 
             }.build())
         }.apply {

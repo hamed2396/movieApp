@@ -6,7 +6,7 @@ data class ResponseTopRated(
     @SerializedName("page")
     var page: Int?, // 1
     @SerializedName("results")
-    var results: List<Result?>?,
+    var results: List<Result>?,
     @SerializedName("total_pages")
     var totalPages: Int?, // 514
     @SerializedName("total_results")
