@@ -11,9 +11,10 @@ import com.example.movieapp.ui.screens.register.RegisterScreen
 @Composable
 fun ScreenNavigation(userInfo: SessionManger) {
     val navController = rememberNavController()
+
     NavHost(navController = navController, startDestination = MyScreens.IntroScreen.route) {
         composable(route = MyScreens.IntroScreen.route) {
-            IntroScreen(navigation = navController)
+            IntroScreen(navigation = navController, userInfo)
         }
         composable(route = MyScreens.RegisterScreen.route) {
             RegisterScreen(navController = navController, userInfo = userInfo)
