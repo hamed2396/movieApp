@@ -60,74 +60,45 @@ import com.google.accompanist.pager.rememberPagerState
 
 @Composable
 fun HomeScreen() {
-    val viewModel = hiltViewModel<HomeViewModel>()
+    val viewModel: HomeViewModel = hiltViewModel()
+    val uiState = viewModel.uiState
     val context = LocalContext.current
 
-    val data = viewModel.topRatedMovies
-    val genresList = viewModel.genresList
-
-    Column(modifier = Modifier.fillMaxSize()) {
-
-        // ----- Top Rated section (یا loader / error placeholder) -----
-        when (data) {
-            is NetworkStatus.Data -> {
-                TopRatedMovieSection(data = data.data!!.results!!)
-            }
-            is NetworkStatus.Loading -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator(color = crayola)
-                }
-            }
-            is NetworkStatus.Error -> {
-                // نمایش متن خطا یا Toast با LaunchedEffect
-                LaunchedEffect(data) {
-                    Toast.makeText(context, data.error, Toast.LENGTH_SHORT).show()
-                }
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(300.dp),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(text = "Error loading top rated", color = Color.Red)
-                }
+    when {
+        uiState.isLoading -> {
+            // یک لودینگ مرکزی برای کل صفحه
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(color = crayola)
             }
         }
 
-        Spacer(modifier = Modifier.height(12.dp))
+        else -> {
+            // بررسی موفقیت داده‌ها
+            val topRated = uiState.topRatedMovies
+            val genres = uiState.genresList
 
-
-        when (genresList) {
-            is NetworkStatus.Data -> {
-                GenresSection(genresList = genresList.data!!.genres!!)
-            }
-            is NetworkStatus.Loading -> {
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp),
-                    contentAlignment = Alignment.Center
+            if (topRated is NetworkStatus.Data && genres is NetworkStatus.Data) {
+                Column(
+                    modifier = Modifier.fillMaxSize()
                 ) {
-                    CircularProgressIndicator(modifier = Modifier.size(24.dp), color = crayola)
+                    TopRatedMovieSection(topRated.data!!.results!!)
+                    GenresSection(genresList = genres.data!!.genres!!)
                 }
             }
-            is NetworkStatus.Error -> {
-                LaunchedEffect(genresList) {
-                    Toast.makeText(context, genresList.error, Toast.LENGTH_SHORT).show()
-                }
+
+
+            if (topRated is NetworkStatus.Error) {
+                Toast.makeText(context, topRated.error, Toast.LENGTH_SHORT).show()
+            }
+            if (genres is NetworkStatus.Error) {
+                Toast.makeText(context, genres.error, Toast.LENGTH_SHORT).show()
             }
         }
-
-
     }
 }
-
 
 
 @Composable
@@ -141,7 +112,7 @@ fun TopRatedMovieSection(data: List<ResponseTopRated.Result>) {
             .fillMaxHeight(0.5f)
     ) {
         HorizontalPager(
-            count = data.size,
+            count = 5,
             state = pagerState,
             modifier = Modifier.fillMaxSize()
         ) { page ->
