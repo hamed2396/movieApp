@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.screens.home
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -7,6 +8,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,19 +18,24 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowRight
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -43,6 +50,7 @@ import coil.request.ImageRequest
 import com.example.movieapp.R
 import com.example.movieapp.data.models.home.ResponseGenres
 import com.example.movieapp.data.models.home.ResponseTopRated
+import com.example.movieapp.data.models.home.ResponseTrending
 import com.example.movieapp.ui.theme.CoolYellow
 import com.example.movieapp.ui.theme.MovieAppTheme
 import com.example.movieapp.ui.theme.chineseBlack
@@ -51,6 +59,8 @@ import com.example.movieapp.ui.theme.coolWhite
 import com.example.movieapp.ui.theme.crayola
 import com.example.movieapp.ui.theme.philippineSilver
 import com.example.movieapp.ui.theme.raisinBlack
+import com.example.movieapp.ui.theme.scarlet
+import com.example.movieapp.utils.Constants
 import com.example.movieapp.utils.Constants.BASE_IMAGE
 import com.example.movieapp.utils.androidColors
 import com.example.movieapp.utils.network.NetworkStatus
@@ -64,9 +74,10 @@ fun HomeScreen() {
     val uiState = viewModel.uiState
     val context = LocalContext.current
 
+
     when {
         uiState.isLoading -> {
-            // یک لودینگ مرکزی برای کل صفحه
+
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -76,16 +87,18 @@ fun HomeScreen() {
         }
 
         else -> {
-            // بررسی موفقیت داده‌ها
+
             val topRated = uiState.topRatedMovies
             val genres = uiState.genresList
+            val trending = uiState.trendingList
 
-            if (topRated is NetworkStatus.Data && genres is NetworkStatus.Data) {
+            if (topRated is NetworkStatus.Data && genres is NetworkStatus.Data && trending is NetworkStatus.Data) {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
                 ) {
                     TopRatedMovieSection(topRated.data!!.results!!)
                     GenresSection(genresList = genres.data!!.genres!!)
+                    TrendingMovies(trendingList = trending.data!!.results!!)
                 }
             }
 
@@ -95,6 +108,9 @@ fun HomeScreen() {
             }
             if (genres is NetworkStatus.Error) {
                 Toast.makeText(context, genres.error, Toast.LENGTH_SHORT).show()
+            }
+            if (trending is NetworkStatus.Error) {
+                Toast.makeText(context, trending.error, Toast.LENGTH_SHORT).show()
             }
         }
     }
@@ -225,7 +241,7 @@ fun GenresSection(genresList: List<ResponseGenres.Genre>) {
             .fillMaxWidth()
             .padding(top = 16.dp)
     ) {
-        Text(text = "Genres", color = CoolYellow,modifier = Modifier.padding(start = 8.dp))
+        Text(text = "Genres", color = CoolYellow, modifier = Modifier.padding(start = 8.dp))
         Spacer(modifier = Modifier.height(5.dp))
         GenresText(genresList)
     }
@@ -242,14 +258,19 @@ fun GenresText(genresList: List<ResponseGenres.Genre>) {
             )
     )
     {
-        genresList.forEach {genres->
+        genresList.forEach { genres ->
             Surface(
                 color = raisinBlack,
                 shape = RoundedCornerShape(8.dp),
-                modifier = Modifier.clickable{}
+                modifier = Modifier.clickable {}
 
             ) {
-                Text(genres.name!!, color = coolWhite, modifier = Modifier.padding(5.dp), fontSize = 12.sp)
+                Text(
+                    genres.name!!,
+                    color = coolWhite,
+                    modifier = Modifier.padding(5.dp),
+                    fontSize = 12.sp
+                )
 
 
             }
@@ -262,11 +283,135 @@ fun GenresText(genresList: List<ResponseGenres.Genre>) {
 
 }
 
+@Composable
+fun TrendingMovies(modifier: Modifier = Modifier, trendingList: List<ResponseTrending.Result>) {
+    val context = LocalContext.current
+    Text(
+        text = "Trending Movies",
+        color = CoolYellow,
+        modifier = Modifier.padding(start = 8.dp, top = 16.dp)
+    )
+    LazyColumn(contentPadding = PaddingValues(vertical = 8.dp)) {
+
+        items(trendingList){movie->
+            Column(
+                modifier = modifier
+                    .fillMaxWidth()
+                    .padding(top = 8.dp, bottom = 8.dp)
+            ) {
+
+                Row(modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
+                    Card(
+                        modifier = modifier
+                            .width(150.dp)
+                            .height(200.dp)
+                    ) {
+                        AsyncImage(
+                            model = ImageRequest.Builder(context)
+                                .data(BASE_IMAGE+movie.posterPath)
+                                .crossfade(500)
+                                .build(),
+                            contentDescription = null,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+                    Column {
+                        Text(
+                            text = movie.title!!,
+                            color = coolWhite,
+                            modifier = Modifier.padding(start = 8.dp, top = 5.dp),
+                            fontSize = 14.sp
+                        )
+                        Row(
+                            modifier = Modifier.padding(top = 8.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_round_star_24),
+                                contentDescription = null,
+                                tint = coolWhite,
+                                modifier = modifier.padding(start = 5.dp)
+                            )
+                            Text(
+                                text = movie.voteAverage!!.toInt().toString(),
+                                color = philippineSilver,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontSize = 14.sp
+                            )
+
+                        }
+                        Row(
+                            modifier = Modifier.padding(top = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_round_language_24),
+                                contentDescription = null,
+                                tint = coolWhite,
+                                modifier = modifier.padding(start = 5.dp)
+                            )
+                            Text(
+                                text = movie.originalLanguage!!,
+                                color = philippineSilver,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontSize = 14.sp
+                            )
+
+                        }
+                        Row(
+                            modifier = Modifier.padding(top = 12.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_round_calendar_today_24),
+                                contentDescription = null,
+                                tint = coolWhite,
+                                modifier = modifier.padding(start = 5.dp)
+                            )
+                            Text(
+                                text = movie.releaseDate!!.split("-")[0],
+                                color = philippineSilver,
+                                modifier = Modifier.padding(start = 8.dp),
+                                fontSize = 14.sp
+                            )
+
+                        }
+                        Row(
+
+                            verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Center
+                        ) {
+
+                            Text(
+                                text = "Get more Info ",
+                                color = scarlet,
+                                modifier = Modifier.padding(start = 8.dp, top = 26.dp),
+                                fontSize = 14.sp
+                            )
+                            Icon(
+                                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                                contentDescription = null,
+                                tint = scarlet, modifier = Modifier.offset(y=12.dp)
+
+                            )
+
+                        }
+
+
+                    }
+
+                }
+            }
+        }
+    }
+
+}
+
 
 @Preview
 @Composable
 private fun HomeScreenPrev() {
     MovieAppTheme {
-        GenresText(listOf())
+        TrendingMovies(trendingList = listOf())
     }
 }

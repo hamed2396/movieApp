@@ -35,14 +35,18 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             val topRatedDeferred = async { repository.getTopRatedMovies() }
             val genresDeferred = async { repository.getGenresList() }
+            val trendingDeferred = async { repository.getTrendingMovies() }
 
             val topRatedResult = networkResponse.handleResponse(topRatedDeferred.await())
             val genresResult = networkResponse.handleResponse(genresDeferred.await())
+            val trendingResult = networkResponse.handleResponse(trendingDeferred.await())
+
 
             uiState = uiState.copy(
                 isLoading = false,
                 topRatedMovies = topRatedResult,
-                genresList = genresResult
+                genresList = genresResult,
+                trendingList = trendingResult
             )
         }
     }
