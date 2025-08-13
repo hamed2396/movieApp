@@ -75,6 +75,7 @@ fun HomeScreen() {
     val context = LocalContext.current
 
 
+
     when {
         uiState.isLoading -> {
 
@@ -94,7 +95,7 @@ fun HomeScreen() {
 
             if (topRated is NetworkStatus.Data && genres is NetworkStatus.Data && trending is NetworkStatus.Data) {
                 Column(
-                    modifier = Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    modifier = Modifier.fillMaxSize()
                 ) {
                     TopRatedMovieSection(topRated.data!!.results!!)
                     GenresSection(genresList = genres.data!!.genres!!)

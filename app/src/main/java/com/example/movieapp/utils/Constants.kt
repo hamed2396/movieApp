@@ -16,5 +16,6 @@ object Constants {
     const val PING_TIME_OUT = 60L
     const val PING_NAMED = "ping_named"
     const val BASE_IMAGE="https://image.tmdb.org/t/p/w500"
+    const val MOVIE_ID= "movie_id"
 }
 typealias androidColors = Color
