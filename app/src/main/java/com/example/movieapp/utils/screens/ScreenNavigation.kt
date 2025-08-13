@@ -28,10 +28,7 @@ fun ScreenNavigation(userInfo: SessionManger) {
         composable(route = MyScreens.MainScreen.route) {
             MainScreenBottomNav()
         }
-        composable( route = MyScreens.DetailScreen.route + "/" + "{${MOVIE_ID}}",
-            arguments = listOf(navArgument(MOVIE_ID) { type = NavType.IntType })) {
-            DetailScreen(it.arguments!!.getInt(MOVIE_ID, 0))
-        }
+
 
 
     }

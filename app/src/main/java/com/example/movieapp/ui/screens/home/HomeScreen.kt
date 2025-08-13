@@ -45,6 +45,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.movieapp.R
@@ -64,12 +65,13 @@ import com.example.movieapp.utils.Constants
 import com.example.movieapp.utils.Constants.BASE_IMAGE
 import com.example.movieapp.utils.androidColors
 import com.example.movieapp.utils.network.NetworkStatus
+import com.example.movieapp.utils.screens.MyScreens
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.HorizontalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(navController: NavController) {
     val viewModel: HomeViewModel = hiltViewModel()
     val uiState = viewModel.uiState
     val context = LocalContext.current
@@ -97,9 +99,13 @@ fun HomeScreen() {
                 Column(
                     modifier = Modifier.fillMaxSize()
                 ) {
-                    TopRatedMovieSection(topRated.data!!.results!!)
+                    TopRatedMovieSection(topRated.data!!.results!!){
+                        navController.navigate(MyScreens.DetailScreen.route+"/$it")
+                    }
                     GenresSection(genresList = genres.data!!.genres!!)
-                    TrendingMovies(trendingList = trending.data!!.results!!)
+                    TrendingMovies(trendingList = trending.data!!.results!!){
+                        navController.navigate(MyScreens.DetailScreen.route+"/$it")
+                    }
                 }
             }
 
@@ -119,7 +125,7 @@ fun HomeScreen() {
 
 
 @Composable
-fun TopRatedMovieSection(data: List<ResponseTopRated.Result>) {
+fun TopRatedMovieSection(data: List<ResponseTopRated.Result>,onItemClicked: (Int) -> Unit) {
     val context = LocalContext.current
     val pagerState = rememberPagerState()
 
@@ -139,7 +145,7 @@ fun TopRatedMovieSection(data: List<ResponseTopRated.Result>) {
             val imageUrl = BASE_IMAGE + posterPath
 
             Box(
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize().clickable { onItemClicked(movie.id!!) }
             ) {
                 AsyncImage(
                     model = ImageRequest.Builder(context)
@@ -285,7 +291,7 @@ fun GenresText(genresList: List<ResponseGenres.Genre>) {
 }
 
 @Composable
-fun TrendingMovies(modifier: Modifier = Modifier, trendingList: List<ResponseTrending.Result>) {
+fun TrendingMovies(modifier: Modifier = Modifier, trendingList: List<ResponseTrending.Result>,onItemClicked:(Int)-> Unit) {
     val context = LocalContext.current
     Text(
         text = "Trending Movies",
@@ -298,7 +304,7 @@ fun TrendingMovies(modifier: Modifier = Modifier, trendingList: List<ResponseTre
             Column(
                 modifier = modifier
                     .fillMaxWidth()
-                    .padding(top = 8.dp, bottom = 8.dp)
+                    .padding(top = 8.dp, bottom = 8.dp).clickable { onItemClicked(movie.id!!) }
             ) {
 
                 Row(modifier = Modifier.padding(start = 8.dp, top = 8.dp)) {
@@ -413,6 +419,6 @@ fun TrendingMovies(modifier: Modifier = Modifier, trendingList: List<ResponseTre
 @Composable
 private fun HomeScreenPrev() {
     MovieAppTheme {
-        TrendingMovies(trendingList = listOf())
+        TrendingMovies(trendingList = listOf()){}
     }
 }
