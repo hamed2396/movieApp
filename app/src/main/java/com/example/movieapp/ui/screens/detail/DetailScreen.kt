@@ -76,7 +76,7 @@ fun DetailScreen(movieId: Int, navController: NavController) {
 
         viewModel.loadHomeData(movieId)
         favViewModel.isMovieInFavorite(movieId)
-        Log.e("mytag", "${favViewModel.isFavorite}", )
+
 
     }
 
@@ -111,10 +111,10 @@ fun DetailScreen(movieId: Int, navController: NavController) {
                             favViewModel.isFavorite = !favViewModel.isFavorite
                             val entity = FavoriteEntity(movieId, detailOverView.data)
                             if (!favViewModel.isFavorite) {
-                                Log.e("mytag", "delete", )
+
                                 favViewModel.deleteFavorite(entity)
                             } else {
-                                Log.e("mytag", "save", )
+
                                 favViewModel.saveFavorite(entity)
                             }
 
