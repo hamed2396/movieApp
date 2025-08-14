@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -12,12 +13,18 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -35,6 +42,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -45,6 +53,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.movieapp.R
 import com.example.movieapp.data.models.detail.ResponseDetail
+import com.example.movieapp.data.models.detail.ResponseMovieActors
 import com.example.movieapp.ui.theme.chineseBlack
 import com.example.movieapp.ui.theme.chineseBlackAlpha
 import com.example.movieapp.ui.theme.coolWhite
@@ -79,19 +88,27 @@ fun DetailScreen(movieId: Int, navController: NavController) {
 
             val detailOverView = uiState.detailOverView
             val actors = uiState.actors
+            val state = rememberScrollState()
 
 
 
             if (detailOverView is NetworkStatus.Data && actors is NetworkStatus.Data) {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.verticalScroll(state)
                 ) {
                     DetailTopSection(
                         onBackClicked = { navController.popBackStack() },
                         onLikeClicked = {},
-                        movie = detailOverView.data!!
+                        movie = detailOverView.data!!, modifier = Modifier.height(500.dp)
                     )
+
+                    Spacer(Modifier.height(8.dp))
+                    SummerySection(detailOverView.data)
+                    Spacer(Modifier.height(8.dp))
+                    ActorsSection(actors.data!!)
+
                 }
+
             }
 
 
@@ -109,13 +126,116 @@ fun DetailScreen(movieId: Int, navController: NavController) {
 }
 
 @Composable
-fun DetailTopSection(onBackClicked: () -> Unit, onLikeClicked: () -> Unit, movie: ResponseDetail) {
+fun ActorsSection(movie: ResponseMovieActors) {
+    var actorsName = ""
+    Column(
+
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Icon(painterResource(R.drawable.ic_round_person_24), contentDescription = null)
+            Text(
+                text = "Actors",
+                color = coolWhite,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+
+
+        movie.cast!!.forEach {
+            actorsName += it.name!! + " , "
+        }
+        Text(
+            text = actorsName,
+            color = philippineSilver,
+            fontSize = 12.sp,
+            modifier = Modifier.padding(start = 6.dp),
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1
+        )
+        Spacer(Modifier.height(8.dp))
+        LazyRow(
+            modifier = Modifier
+                .fillMaxWidth().padding(bottom = 30.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(horizontal = 8.dp)
+        ) {
+            items(movie.cast!!) { index ->
+
+                ActorsCard(index.profilePath!!)
+            }
+        }
+
+    }
+}
+
+@Composable
+fun ActorsCard(movieActor: String) {
+    val context=LocalContext.current
+    Card(
+        modifier = Modifier
+            .size(90.dp), shape = RoundedCornerShape(10.dp)
+    ) {
+        AsyncImage(
+
+            model = ImageRequest.Builder(context)
+                .data(Constants.BASE_IMAGE + movieActor)
+                .crossfade(500)
+                .build(),
+            contentDescription = null,
+            contentScale = ContentScale.Crop,
+            modifier = Modifier
+                .fillMaxSize()
+
+        )
+
+    }
+}
+
+@Composable
+fun SummerySection(movie: ResponseDetail) {
+    Column(
+
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center, modifier = Modifier.padding(start = 8.dp)
+        ) {
+            Icon(painterResource(R.drawable.ic_round_info_24), contentDescription = null)
+            Text(
+                text = "Summery",
+                color = coolWhite,
+                fontSize = 16.sp,
+                modifier = Modifier.padding(start = 6.dp)
+            )
+        }
+        Spacer(Modifier.height(8.dp))
+        Text(
+            fontSize = 12.sp,
+            color = philippineSilver,
+            text = movie.overview!!,
+            textAlign = TextAlign.Justify, modifier = Modifier.padding(horizontal = 12.dp)
+        )
+
+    }
+}
+
+@Composable
+fun DetailTopSection(
+    onBackClicked: () -> Unit,
+    onLikeClicked: () -> Unit,
+    movie: ResponseDetail,
+    modifier: Modifier = Modifier
+) {
     val context = LocalContext.current
 
     Box(
-        modifier = Modifier
+        modifier = modifier
             .fillMaxWidth()
-            .fillMaxHeight(.6f)
+
 
     ) {
 
@@ -279,6 +399,7 @@ fun DetailTopSection(onBackClicked: () -> Unit, onLikeClicked: () -> Unit, movie
 
 
 }
+
 @Composable
 fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit) {
     val context = LocalContext.current
@@ -342,7 +463,7 @@ fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit) {
                 ) {
 
                 Text(
-                  "  movie",
+                    "  movie",
                     fontSize = 20.sp,
                     color = coolWhite,
                     fontWeight = FontWeight.Bold
@@ -455,5 +576,5 @@ fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit) {
 @Preview
 @Composable
 private fun DetailPrev() {
-    DetailTopSectionPrev(onBackClicked = {},{})
+    DetailTopSectionPrev(onBackClicked = {}, {})
 }
