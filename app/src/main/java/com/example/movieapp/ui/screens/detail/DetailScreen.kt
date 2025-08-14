@@ -66,6 +66,7 @@ import com.example.movieapp.utils.network.NetworkStatus
 
 @Composable
 fun DetailScreen(movieId: Int, navController: NavController) {
+    Constants.SEARCH_STATE=false
     val viewModel = hiltViewModel<DetailViewModel>()
     LaunchedEffect(Unit) {
 

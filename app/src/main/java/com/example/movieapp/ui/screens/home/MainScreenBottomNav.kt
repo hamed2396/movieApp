@@ -48,7 +48,7 @@ val bottomNavController = rememberNavController()
             modifier = Modifier.padding(innerPadding)
         ) {
             composable(BottomNavScreen.Home.route) { HomeScreen(navController = bottomNavController) }
-            composable(BottomNavScreen.Search.route) { SearchScreen() }
+            composable(BottomNavScreen.Search.route) { SearchScreen(bottomNavController) }
             composable(BottomNavScreen.Favorites.route) { FavoriteScreen() }
             composable(BottomNavScreen.Profile.route) { ProfileScreen() }
 
