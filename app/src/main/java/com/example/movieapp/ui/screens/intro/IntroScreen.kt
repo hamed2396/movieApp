@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.screens.intro
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,18 +19,25 @@ import com.airbnb.lottie.compose.animateLottieCompositionAsState
 import com.airbnb.lottie.compose.rememberLottieComposition
 import com.example.movieapp.R
 import com.example.movieapp.ui.theme.MovieAppTheme
-import com.example.movieapp.utils.screens.MyScreens
 import com.example.movieapp.utils.SessionManger
+import com.example.movieapp.utils.screens.MyScreens
 import kotlinx.coroutines.flow.first
 
 @Composable
 fun IntroScreen(navigation: NavController, userInfo: SessionManger) {
-
+    val context=LocalContext.current
+    LaunchedEffect(Unit) {
+        Toast.makeText(context, "حتما به vpn متصل شوید", Toast.LENGTH_SHORT).show()
+    }
     ShowAnimation(navController = navigation, userInfo = userInfo)
 }
 
 @Composable
-fun ShowAnimation(modifier: Modifier = Modifier, navController: NavController,userInfo: SessionManger) {
+fun ShowAnimation(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    userInfo: SessionManger
+) {
     Column(
         modifier.fillMaxSize(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -42,7 +50,7 @@ fun ShowAnimation(modifier: Modifier = Modifier, navController: NavController,us
         val progress by animateLottieCompositionAsState(
             composition = composition,
 
-            speed = 2f
+            speed = 1.5f
         )
 
 
@@ -53,12 +61,12 @@ fun ShowAnimation(modifier: Modifier = Modifier, navController: NavController,us
             )
         if (progress == 1f) {
             LaunchedEffect(Unit) {
-                if (userInfo.getUserInfo().first().first!=null){
+                if (userInfo.getUserInfo().first().first != null) {
 
                     navController.navigate(MyScreens.MainScreen.route) {
                         navController.popBackStack()
                     }
-                }else{
+                } else {
 
                     navController.navigate(MyScreens.RegisterScreen.route) {
                         navController.popBackStack()
@@ -77,8 +85,8 @@ fun ShowAnimation(modifier: Modifier = Modifier, navController: NavController,us
 private fun IntroScreenPrev() {
     MovieAppTheme {
         val navController = rememberNavController()
-        val context= LocalContext.current
-        val user= SessionManger(context)
+        val context = LocalContext.current
+        val user = SessionManger(context)
         IntroScreen(navigation = navController, userInfo = user)
     }
 }
