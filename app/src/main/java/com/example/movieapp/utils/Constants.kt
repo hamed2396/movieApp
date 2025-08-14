@@ -18,5 +18,7 @@ object Constants {
     const val BASE_IMAGE = "https://image.tmdb.org/t/p/w500"
     const val MOVIE_ID = "movie_id"
     var SEARCH_STATE = true
+    const val FAVORITE_TABLE = "FAVORITE_TABLE"
+    const val DB_NAME = "db_name"
 }
 typealias androidColors = Color

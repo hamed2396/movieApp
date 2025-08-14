@@ -1,19 +1,18 @@
 package com.example.movieapp.data.models.detail
 
 
+import android.os.Parcelable
 import com.google.gson.annotations.SerializedName
-
+import kotlinx.parcelize.Parcelize
+import kotlinx.parcelize.RawValue
+@Parcelize
 data class ResponseDetail(
     @SerializedName("adult")
     var adult: Boolean?, // false
     @SerializedName("backdrop_path")
     var backdropPath: String?, // /kqHypb4MdEBUFiphf49bK99T4cn.jpg
-    @SerializedName("belongs_to_collection")
-    var belongsToCollection: Any?, // null
     @SerializedName("budget")
     var budget: Int?, // 5
-    @SerializedName("genres")
-    var genres: List<Genre?>?,
     @SerializedName("homepage")
     var homepage: String?, // https://www.amazon.com/gp/video/detail/B0DMF7MXKT
     @SerializedName("id")
@@ -21,7 +20,7 @@ data class ResponseDetail(
     @SerializedName("imdb_id")
     var imdbId: String?, // tt13186306
     @SerializedName("origin_country")
-    var originCountry: List<String?>?,
+    var originCountry:@RawValue List<String>?,
     @SerializedName("original_language")
     var originalLanguage: String?, // en
     @SerializedName("original_title")
@@ -32,10 +31,6 @@ data class ResponseDetail(
     var popularity: Double?, // 1604.146
     @SerializedName("poster_path")
     var posterPath: String?, // /yvirUYrva23IudARHn3mMGVxWqM.jpg
-    @SerializedName("production_companies")
-    var productionCompanies: List<ProductionCompany?>?,
-    @SerializedName("production_countries")
-    var productionCountries: List<ProductionCountry?>?,
     @SerializedName("release_date")
     var releaseDate: String?, // 2025-07-29
     @SerializedName("revenue")
@@ -43,7 +38,7 @@ data class ResponseDetail(
     @SerializedName("runtime")
     var runtime: Int?, // 91
     @SerializedName("spoken_languages")
-    var spokenLanguages: List<SpokenLanguage?>?,
+    var spokenLanguages: @RawValue List<SpokenLanguage?>?,
     @SerializedName("status")
     var status: String?, // Released
     @SerializedName("tagline")
@@ -56,14 +51,15 @@ data class ResponseDetail(
     var voteAverage: Double?, // 4.259
     @SerializedName("vote_count")
     var voteCount: Int? // 286
-) {
+): Parcelable {
+    @Parcelize
     data class Genre(
         @SerializedName("id")
         var id: Int?, // 878
         @SerializedName("name")
         var name: String? // Science Fiction
-    )
-
+    ): Parcelable
+    @Parcelize
     data class ProductionCompany(
         @SerializedName("id")
         var id: Int?, // 33
@@ -73,15 +69,15 @@ data class ResponseDetail(
         var name: String?, // Universal Pictures
         @SerializedName("origin_country")
         var originCountry: String? // US
-    )
-
+    ): Parcelable
+    @Parcelize
     data class ProductionCountry(
         @SerializedName("iso_3166_1")
         var iso31661: String?, // US
         @SerializedName("name")
         var name: String? // United States of America
-    )
-
+    ): Parcelable
+    @Parcelize
     data class SpokenLanguage(
         @SerializedName("english_name")
         var englishName: String?, // English
@@ -89,5 +85,5 @@ data class ResponseDetail(
         var iso6391: String?, // en
         @SerializedName("name")
         var name: String? // English
-    )
+    ): Parcelable
 }

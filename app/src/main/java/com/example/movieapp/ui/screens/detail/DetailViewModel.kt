@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.movieapp.data.models.home.ResponseGenres
 import com.example.movieapp.data.models.home.ResponseTopRated
 import com.example.movieapp.data.repository.DetailRepository
+import com.example.movieapp.data.repository.FavoriteRepository
 import com.example.movieapp.data.repository.HomeRepository
 import com.example.movieapp.utils.network.DetailUiState
 import com.example.movieapp.utils.network.HomeUiState
@@ -21,7 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DetailViewModel @Inject constructor(
     private val repository: DetailRepository,
-    private val networkResponse: NetworkResponse
+    private val networkResponse: NetworkResponse,
 ) : ViewModel() {
 
     var uiState by mutableStateOf(DetailUiState())

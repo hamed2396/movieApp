@@ -5,8 +5,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,7 +13,6 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.movieapp.ui.screens.detail.DetailScreen
 import com.example.movieapp.ui.screens.favorite.FavoriteScreen
-import com.example.movieapp.ui.screens.profile.ProfileScreen
 import com.example.movieapp.ui.screens.search.SearchScreen
 import com.example.movieapp.utils.Constants.MOVIE_ID
 import com.example.movieapp.utils.screens.BottomNavScreen
@@ -29,7 +26,7 @@ val bottomNavController = rememberNavController()
         BottomNavScreen.Home,
         BottomNavScreen.Search,
         BottomNavScreen.Favorites,
-        BottomNavScreen.Profile
+
     )
 
     Scaffold(
@@ -49,8 +46,7 @@ val bottomNavController = rememberNavController()
         ) {
             composable(BottomNavScreen.Home.route) { HomeScreen(navController = bottomNavController) }
             composable(BottomNavScreen.Search.route) { SearchScreen(bottomNavController) }
-            composable(BottomNavScreen.Favorites.route) { FavoriteScreen() }
-            composable(BottomNavScreen.Profile.route) { ProfileScreen() }
+            composable(BottomNavScreen.Favorites.route) { FavoriteScreen(navController = bottomNavController) }
 
             composable( route = MyScreens.DetailScreen.route + "/" + "{${MOVIE_ID}}",
                 arguments = listOf(navArgument(MOVIE_ID) { type = NavType.IntType })) {

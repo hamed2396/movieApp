@@ -1,5 +1,6 @@
 package com.example.movieapp.ui.screens.detail
 
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -52,26 +53,33 @@ import androidx.navigation.NavController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.movieapp.R
+import com.example.movieapp.data.db.FavoriteEntity
 import com.example.movieapp.data.models.detail.ResponseDetail
 import com.example.movieapp.data.models.detail.ResponseMovieActors
+import com.example.movieapp.ui.screens.favorite.FavoriteViewModel
 import com.example.movieapp.ui.theme.chineseBlack
 import com.example.movieapp.ui.theme.chineseBlackAlpha
 import com.example.movieapp.ui.theme.coolWhite
 import com.example.movieapp.ui.theme.crayola
 import com.example.movieapp.ui.theme.philippineSilver
 import com.example.movieapp.ui.theme.raisinBlack
+import com.example.movieapp.ui.theme.scarlet
 import com.example.movieapp.utils.Constants
 import com.example.movieapp.utils.androidColors
 import com.example.movieapp.utils.network.NetworkStatus
 
 @Composable
 fun DetailScreen(movieId: Int, navController: NavController) {
-    Constants.SEARCH_STATE=false
     val viewModel = hiltViewModel<DetailViewModel>()
+    val favViewModel = hiltViewModel<FavoriteViewModel>()
     LaunchedEffect(Unit) {
 
         viewModel.loadHomeData(movieId)
+        favViewModel.isMovieInFavorite(movieId)
+        Log.e("mytag", "${favViewModel.isFavorite}", )
+
     }
+
     val uiState = viewModel.uiState
     val context = LocalContext.current
     when {
@@ -99,8 +107,22 @@ fun DetailScreen(movieId: Int, navController: NavController) {
                 ) {
                     DetailTopSection(
                         onBackClicked = { navController.popBackStack() },
-                        onLikeClicked = {},
-                        movie = detailOverView.data!!, modifier = Modifier.height(500.dp)
+                        onLikeClicked = {
+                            favViewModel.isFavorite = !favViewModel.isFavorite
+                            val entity = FavoriteEntity(movieId, detailOverView.data)
+                            if (!favViewModel.isFavorite) {
+                                Log.e("mytag", "delete", )
+                                favViewModel.deleteFavorite(entity)
+                            } else {
+                                Log.e("mytag", "save", )
+                                favViewModel.saveFavorite(entity)
+                            }
+
+                        },
+                        movie = detailOverView.data!!,
+                        modifier = Modifier.height(500.dp),
+                        isFav = favViewModel.isFavorite,
+
                     )
 
                     Spacer(Modifier.height(8.dp))
@@ -161,8 +183,10 @@ fun ActorsSection(movie: ResponseMovieActors) {
         Spacer(Modifier.height(8.dp))
         LazyRow(
             modifier = Modifier
-                .fillMaxWidth().padding(bottom = 30.dp),
-            horizontalArrangement = Arrangement.spacedBy(12.dp), contentPadding = PaddingValues(horizontal = 8.dp)
+                .fillMaxWidth()
+                .padding(bottom = 30.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            contentPadding = PaddingValues(horizontal = 8.dp)
         ) {
             items(movie.cast!!) { index ->
 
@@ -175,7 +199,7 @@ fun ActorsSection(movie: ResponseMovieActors) {
 
 @Composable
 fun ActorsCard(movieActor: String) {
-    val context=LocalContext.current
+    val context = LocalContext.current
     Card(
         modifier = Modifier
             .size(90.dp), shape = RoundedCornerShape(10.dp)
@@ -229,7 +253,8 @@ fun DetailTopSection(
     onBackClicked: () -> Unit,
     onLikeClicked: () -> Unit,
     movie: ResponseDetail,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFav: Boolean
 ) {
     val context = LocalContext.current
 
@@ -388,7 +413,7 @@ fun DetailTopSection(
                     Icon(
                         imageVector = Icons.Default.Favorite,
                         contentDescription = null,
-                        tint = philippineSilver
+                        tint = if (isFav) scarlet else philippineSilver
                     )
                 }
             }
@@ -402,7 +427,7 @@ fun DetailTopSection(
 }
 
 @Composable
-fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit) {
+fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit,favViewModel: FavoriteViewModel) {
     val context = LocalContext.current
 
     Box(
@@ -577,5 +602,5 @@ fun DetailTopSectionPrev(onBackClicked: () -> Unit, onLikeClicked: () -> Unit) {
 @Preview
 @Composable
 private fun DetailPrev() {
-    DetailTopSectionPrev(onBackClicked = {}, {})
+
 }

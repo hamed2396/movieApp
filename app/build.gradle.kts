@@ -2,11 +2,14 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
-    kotlin("kapt")
+
     id("kotlin-parcelize")
     //nav component
     alias(libs.plugins.navigation.safeargs)
     id("com.google.dagger.hilt.android")
+    alias(libs.plugins.ksp)
+
+
 }
 
 android {
@@ -74,7 +77,7 @@ dependencies {
     annotationProcessor(libs.androidx.room.compiler)
     implementation(libs.androidx.room.ktx)
     //noinspection KaptUsageInsteadOfKsp
-    kapt(libs.androidx.room.compiler)
+    ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.runtime.livedata)
@@ -83,7 +86,8 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.hilt.navigation.compose)
     implementation (libs.hilt.android)
-    kapt (libs.hilt.compiler)
+   ksp (libs.hilt.compiler)
+   ksp (libs.androidx.hilt.compiler)
 
     implementation(libs.androidx.datastore.preferences)
 
