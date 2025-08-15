@@ -32,6 +32,6 @@ A modern Android application built with ***Jetpack Compose*** and ***MVVM archit
 * local : Room / DataStore
 * navigation : navigation Compose
 
-![demo](screenshots/video.gif)
+
 
 
